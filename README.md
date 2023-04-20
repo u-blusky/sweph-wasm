@@ -105,4 +105,6 @@ The astro.js file is one of the files that is created by the compiler.
  # To do
  Return a string in json format from the astro.c file.
  
+# The Application Web
 
+![The Application Web](/assets/img/sweph-wasm.png)
