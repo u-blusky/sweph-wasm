@@ -1,0 +1,181 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Sweph-Wasm">
+  <meta name="author" content="u-blusky">
+  <meta name="generator" content="">
+  <title>Sweph-Wasm</title>
+
+  <link rel="shortcut icon" href="assets/img/favicon.ico" type="image/x-icon">
+  <link rel="icon" href="assets/img/favicon.ico" type="image/x-icon">
+
+  <link href="assets/css/bootstrap.min.css" rel="stylesheet">
+
+  <style>
+    .myDivLonLat {
+      display: flex;
+      flex-direction: row;
+      flex-wrap: nowrap;
+      justify-content: flex-start;
+    }
+
+    .myPadding {
+      padding: .375rem .75rem !important;
+    }
+  </style>
+
+</head>
+
+<body class="bg-light">
+  <div class="container">
+    <main>
+      <div class="text-center" style="margin:50px auto;max-width:700px;">
+        <h2>Sweph-Wasm</h2>
+        <p class="lead">Test page for Sweph-Wasm. Allows you to calculate the position of planets, asteroids and houses
+          in a range of dates that goes from the year 1800 to 2400.</p>
+      </div>
+
+      <div class="row g-5" style="margin:0 auto;max-width:700px;">
+        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12" style="margin-top:0;">
+          <h4 class="d-flex justify-content-between align-items-center mb-3">
+            <span class="text-primary">Input data</span>
+          </h4>
+          <ul class="list-group mb-3">
+            <li class="list-group-item d-flex justify-content-between lh-sm">
+              <div class="col-sm-5">
+                <h6 class="my-0">Date</h6>
+                <small class="text-muted">Range years 1800 - 2400</small>
+              </div>
+              <div class="col-sm-7">
+                <input type="date" id="initDate" class="form-control" min="1800-01-01" max="2040-12-31"
+                  pattern="\d{4}-\d{2}-\d{2}" required />
+              </div>
+            </li>
+            <li class="list-group-item d-flex justify-content-between lh-sm">
+              <div class="col-sm-5">
+                <h6 class="my-0">Time</h6>
+                <small class="text-muted">Time in UT (Universal Time)</small>
+              </div>
+              <div class="col-sm-7">
+                <input type="time" id="initTime" class="form-control" required />
+              </div>
+            </li>
+            <li class="list-group-item d-flex justify-content-between lh-sm">
+              <div class="col-sm-5">
+                <h6 class="my-0">Longitude</h6>
+                <small class="text-muted">For Calculate houses</small>
+              </div>
+              <div class="col-sm-7">
+                <div class="myDivLonLat">
+                  <div style="width: 60px;margin-right:5px;">
+                    <input type="text" id="lonG" class="form-control myPadding"
+                      oninput="this.value = this.value.replace(/[^0-9]/g, ''); this.value = this.value.replace(/(\..*)\./g, '$1');"
+                      required />
+                  </div>
+                  <div style="width: 10px;">°</div>
+                  <div style="width: 50px;margin-right:5px;">
+                    <input type="text" id="lonM" class="form-control myPadding"
+                      oninput="this.value = this.value.replace(/[^0-9]/g, ''); this.value = this.value.replace(/(\..*)\./g, '$1');"
+                      required />
+                  </div>
+                  <div style="width: 10px;margin-right:5px;">'</div>
+                  <div style="width: 50px;">
+                    <input type="text" id="lonS" class="form-control myPadding"
+                      oninput="this.value = this.value.replace(/[^0-9]/g, ''); this.value = this.value.replace(/(\..*)\./g, '$1');"
+                      required />
+                  </div>
+                  <div style="width: 10px;">"</div>
+                  <select class="form-select myPadding" id="lonEW" style="margin-left:5px;width:90px;" required>
+                    <option value="E">E</option>
+                    <option value="W">W</option>
+                  </select>
+                </div>
+              </div>
+            </li>
+            <li class="list-group-item d-flex justify-content-between lh-sm">
+              <div class="col-sm-5">
+                <h6 class="my-0">Latitude</h6>
+                <small class="text-muted">For calculate houses</small>
+              </div>
+              <div class="col-sm-7">
+                <div class="myDivLonLat">
+                  <div style="width: 60px;margin-right:5px;">
+                    <input type="text" id="latG" class="form-control myPadding"
+                      oninput="this.value = this.value.replace(/[^0-9]/g, ''); this.value = this.value.replace(/(\..*)\./g, '$1');"
+                      required />
+                  </div>
+                  <div style="width: 10px;">°</div>
+                  <div style="width: 50px;margin-right:5px;">
+                    <input type="text" id="latM" class="form-control myPadding"
+                      oninput="this.value = this.value.replace(/[^0-9]/g, ''); this.value = this.value.replace(/(\..*)\./g, '$1');"
+                      required />
+                  </div>
+                  <div style="width: 10px;margin-right:5px;">'</div>
+                  <div style="width: 50px;">
+                    <input type="text" id="latS" class="form-control myPadding"
+                      oninput="this.value = this.value.replace(/[^0-9]/g, ''); this.value = this.value.replace(/(\..*)\./g, '$1');"
+                      required />
+                  </div>
+                  <div style="width: 10px;">"</div>
+
+                  <select class="form-select myPadding" id="latNS" style="margin-left:5px;width:90px;" required>
+                    <option value="N">N</option>
+                    <option value="S">S</option>
+                  </select>
+                </div>
+              </div>
+            </li>
+            <li class="list-group-item d-flex justify-content-between lh-sm">
+              <div class="col-sm-5">
+                <h6 class="my-0">House System</h6>
+                <small class="text-muted">For calculate houses</small>
+              </div>
+              <div class="col-sm-7">
+                <select class="form-select myPadding" id="houseSystem" style="margin-left:5px;" required>
+                  <option value="P">Placidus</option>
+                  <option value="O">Porphyrius</option>
+                  <option value="E">Equal</option>
+                </select>
+              </div>
+            </li>
+          </ul>
+
+          <button type="button" id="btnCalculate" class="btn btn-secondary"
+            style="width:200px;float:right;">Calculate</button>
+        </div>
+        <div id="resultDiv" class="col-xs-12 col-sm-12 col-md-12 col-lg-12"
+          style="white-space:pre;font-family: monospace;font-size: 14px;padding: 0;">
+        </div>
+      </div>
+    </main>
+
+    <footer class="my-5 pt-5 text-muted text-center text-small">
+      <p class="mb-1">Sweph-Wasm based on <a href="https://www.astro.com/swisseph/swephinfo_e.htm?"
+          target="_blank">&copy;Swiss Ephemeris</a></p>
+    </footer>
+  </div>
+
+
+  <div class="toast-container position-fixed bottom-0 end-0 p-3">
+    <div id="liveToast" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
+      <div class="toast-header">
+        <strong class="me-auto">Sweph-Wasm</strong>
+        <small>Oops! Check the data</small>
+        <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+      </div>
+      <div id="toastbody" class="toast-body"></div>
+    </div>
+  </div>
+
+
+  <script type="text/javascript" src="assets/js/bootstrap.bundle.min.js"></script>
+  <script type="text/javascript" src="assets/js/jquery-3.6.4.min.js"></script>
+  <script type="text/javascript" src="assets/js/moment.min.js"></script>
+  <script type="text/javascript" src="js/calculate.js"></script>
+
+</body>
+
+</html>
