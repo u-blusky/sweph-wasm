@@ -45,7 +45,9 @@ $(document).ready(function () {
         var astrologer = new Worker("js/sweph.js");
         astrologer.postMessage([iYear, iMonth, iDay, iHour, iMinute, iSecond, iLonG, iLonM, iLonS, sLonEW, iLatG, iLatM, iLatS, sLatNS, sHouse]);
         astrologer.onmessage = function (response) {
-            $("#resultDiv").html(response.data);
+            var jsonResult = JSON.parse(response.data);
+            var sResult = createResult(jsonResult);
+            $("#resultDiv").html(sResult);
         };
     });
 });
@@ -97,4 +99,51 @@ function validateInput() {
     }
 
     return jsonError;
+}
+
+function createResult(jsonResult) {
+    var sHtml = "";
+    sHtml = sHtml + "<table class='myTable'><thead><tr><th>Planet</th><th>Longitude</th><th>Latitude</th><th>Distance</th><th>Speed</th></tr></thead>";
+    sHtml = sHtml + "<tbody>";
+    for (var i = 0; i < jsonResult.planets.length; i++) {
+        sHtml = sHtml + "<tr>";
+        sHtml = sHtml + "<td>" + jsonResult.planets[i].name + "</td>";
+        sHtml = sHtml + "<td>" + jsonResult.planets[i].long_s + "</td>";
+        sHtml = sHtml + "<td>" + jsonResult.planets[i].lat + "</td>";
+        sHtml = sHtml + "<td>" + jsonResult.planets[i].distance + "</td>";
+        sHtml = sHtml + "<td>" + jsonResult.planets[i].speed + "</td>";
+        sHtml = sHtml + "</tr>";
+    }
+    sHtml = sHtml + "<tr>";
+    sHtml = sHtml + "<td colspan='5'>    </td>";
+    sHtml = sHtml + "</tr>";
+    sHtml = sHtml + "<tr>";
+    sHtml = sHtml + "<td>" + jsonResult.ascmc[0].name + "</td>";
+    sHtml = sHtml + "<td>" + jsonResult.ascmc[0].long_s + "</td>";
+    sHtml = sHtml + "<td></td>";
+    sHtml = sHtml + "<td></td>";
+    sHtml = sHtml + "<td></td>";
+    sHtml = sHtml + "</tr>";
+    sHtml = sHtml + "<tr>";
+    sHtml = sHtml + "<td>" + jsonResult.ascmc[1].name + "</td>";
+    sHtml = sHtml + "<td>" + jsonResult.ascmc[1].long_s + "</td>";
+    sHtml = sHtml + "<td></td>";
+    sHtml = sHtml + "<td></td>";
+    sHtml = sHtml + "<td></td>";
+    sHtml = sHtml + "</tr>";
+    sHtml = sHtml + "<tr>";
+    sHtml = sHtml + "<td colspan='5'>    </td>";
+    sHtml = sHtml + "</tr>";
+
+    for (var i = 0; i < jsonResult.house.length; i++) {
+        sHtml = sHtml + "<tr>";
+        sHtml = sHtml + "<td>House " + jsonResult.house[i].name + "</td>";
+        sHtml = sHtml + "<td>" + jsonResult.house[i].long_s + "</td>";
+        sHtml = sHtml + "<td></td>";
+        sHtml = sHtml + "<td></td>";
+        sHtml = sHtml + "<td></td>";
+        sHtml = sHtml + "</tr>";
+    }
+    sHtml = sHtml + "</tbody></table>";
+    return sHtml;
 }

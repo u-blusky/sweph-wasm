@@ -104,18 +104,19 @@ return_dms:;
   return (s);
 }
 
-const char *astro(int year, int month, int day, int hour, int minute, int second, int lonG, int lonM, int lonS, char *lonEW, int latG, int latM, int latS, char *latNS, char *iHouse)
+const char *astro(int year, int month, int day, int hour, int minute, int second, int lonG, int lonM, int lonS, char *lonEW, int latG, int latM, int latS, char *latNS, char *iHouse, int buflen)
 {
   char snam[40], serr[AS_MAXCH];
   double jut = 0.0;
   double tjd_ut, x[6], lon, lat;
   double cusp[12 + 1];
   double ascmc[10];
-  long iflag, iflgret;
+  long iflag, iflagret;
   int p, i;
-  char *buffer = malloc(1000);
-  char *bufferResult = malloc(10000);
   int round_flag = 0;
+  char *Buffer = malloc(buflen);
+  int length = 0;
+  char *sChar = malloc(3);
 
   swe_set_ephe_path("eph");
   iflag = SEFLG_SWIEPH | SEFLG_SPEED;
@@ -123,29 +124,38 @@ const char *astro(int year, int month, int day, int hour, int minute, int second
   jut = (double)hour + (double)minute / 60 + (double)second / 3600;
   tjd_ut = swe_julday(year, month, day, jut, SE_GREG_CAL);
 
-  sprintf(buffer, "%13s\t%14s\t%16s\t%10s\t%10s\n", "", "Longitude", "Latitude", "Distance", "Speed");
-  strcat(bufferResult, buffer);
+  length += snprintf(Buffer + length, buflen - length, "{ ");
+
+  length += snprintf(Buffer + length, buflen - length,
+                     "\"initDate\":[{ \"year\": %d, \"month\": %d,  \"day\": %d,  \"hour\": %d, \"minute\": %d, \"second\": %d, \"jd_ut\": %f }], ", year, month, day, hour, minute, second, tjd_ut);
+
+  length += snprintf(Buffer + length, buflen - length, "\"planets\":[ ");
 
   for (p = SE_SUN; p < SE_NPLANETS; p++)
   {
     if (p == SE_EARTH)
       continue;
+    strcpy(sChar, ", ");
+    if (p == SE_NPLANETS - 1)
+      strcpy(sChar, " ");
 
-    iflgret = swe_calc_ut(tjd_ut, p, iflag, x, serr);
+    iflagret = swe_calc_ut(tjd_ut, p, iflag, x, serr);
 
-    if (iflgret > 0 && (iflgret & SEFLG_SWIEPH))
+    if (iflagret > 0 && (iflagret & SEFLG_SWIEPH))
     {
       swe_get_planet_name(p, snam);
-      sprintf(buffer, "%13s\t%20s\t%10.7f\t%10.7f\t%10.7f\n", snam, dms(x[0], round_flag | BIT_ZODIAC), x[1], x[2], x[3]);
-      strcat(bufferResult, buffer);
+      length += snprintf(Buffer + length, buflen - length,
+                         " { \"index\": %d, \"name\": \"%s\",  \"long\": %f,  \"lat\": %f, \"distance\": %f, \"speed\": %f, \"long_s\": \"%s\", \"iflagret\": %ld, \"error\": %d }%s", p, snam, x[0], x[1], x[2], x[3], dms(x[0], round_flag | BIT_ZODIAC), iflagret, 0, sChar);
     }
     else
     {
       swe_get_planet_name(p, snam);
-      sprintf(buffer, "%13s\t%20s\t%10s\t%10s\t%10s\n", snam, "Error", "", "", "");
-      strcat(bufferResult, buffer);
+      length += snprintf(Buffer + length, buflen - length,
+                         " { \"index\": %d, \"name\": \"%s\",  \"long\": %f,  \"lat\": %f, \"distance\": %f, \"speed\": %f, \"long_s\": \"%s\", \"iflagret\": %ld, \"error\": %d }%s", p, snam, 0.0, 0.0, 0.0, 0.0, "", iflagret, 1, sChar);
     }
   }
+
+  length += snprintf(Buffer + length, buflen - length, "], ");
 
   lon = lonG + lonM / 60.0 + lonS / 3600.0;
   if (*lonEW == 'W')
@@ -155,25 +165,32 @@ const char *astro(int year, int month, int day, int hour, int minute, int second
     lat = -lat;
 
   swe_houses_ex(tjd_ut, iflag, lat, lon, (int)*iHouse, cusp, ascmc);
-  strcat(bufferResult, "\n");
-  sprintf(buffer, "%13s\t%20s\n", "Asc", dms(ascmc[0], round_flag | BIT_ZODIAC));
-  strcat(bufferResult, buffer);
-  sprintf(buffer, "%13s\t%20s\n\n", "MC", dms(ascmc[1], round_flag | BIT_ZODIAC));
-  strcat(bufferResult, buffer);
+  length += snprintf(Buffer + length, buflen - length, "\"ascmc\":[ ");
+  length += snprintf(Buffer + length, buflen - length,
+                     "{ \"name\": \"%s\",  \"long\": %f,  \"long_s\": \"%s\" }, ", "Asc", ascmc[0], dms(ascmc[0], round_flag | BIT_ZODIAC));
+  length += snprintf(Buffer + length, buflen - length,
+                     " { \"name\": \"%s\",  \"long\": %f,  \"long_s\": \"%s\" } ", "MC", ascmc[1], dms(ascmc[1], round_flag | BIT_ZODIAC));
+  length += snprintf(Buffer + length, buflen - length, "], ");
 
+  length += snprintf(Buffer + length, buflen - length, "\"house\":[ ");
   for (i = 1; i <= 12; i++)
   {
-    sprintf(buffer, "%11s%1d\t%20s\n", "House ", i, dms(cusp[i], round_flag | BIT_ZODIAC));
-    strcat(bufferResult, buffer);
+    strcpy(sChar, ", ");
+    if (i == 12)
+      strcpy(sChar, " ");
+    length += snprintf(Buffer + length, buflen - length,
+                       " { \"name\": \"%d\",  \"long\": %f,  \"long_s\": \"%s\" }%s ", i, cusp[i], dms(cusp[i], round_flag | BIT_ZODIAC), sChar);
   }
-
-  return bufferResult;
+  length += snprintf(Buffer + length, buflen - length, "]}");
+  return Buffer;
 }
 
 #if USECASE == OFFLINE
 EMSCRIPTEN_KEEPALIVE
 const char *get(int year, int month, int day, int hour, int minute, int second, int lonG, int lonM, int lonS, char *lonEW, int latG, int latM, int latS, char *latNS, char *iHouse)
 {
-  return astro(year, month, day, hour, minute, second, lonG, lonM, lonS, lonEW, latG, latM, latS, latNS, iHouse);
+  int32 buflen;
+  buflen = 100000;
+  return astro(year, month, day, hour, minute, second, lonG, lonM, lonS, lonEW, latG, latM, latS, latNS, iHouse, buflen);
 }
 #endif
