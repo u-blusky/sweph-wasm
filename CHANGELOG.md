@@ -3,6 +3,11 @@
 ## 22/04/2023
 
 - Improved typo in readme.md
+- new feature: ephemeris in json format
+- mod: index.html
+- mod: calculate.js
+- mod: astro.c
+- delete section To Do in Readme
 
 
 ## 21/04/2023
