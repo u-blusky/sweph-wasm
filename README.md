@@ -98,7 +98,7 @@ The astro.c file contains the logic to create the ephemeris. It interfaces with 
 
 A "web worker" is created from the browser which calls the "astro.js" file.
 
-The web worker issues commands to functions in the astro.c file which returns a formatted string to the web worker. The return string is then processed by javascript.
+The web worker issues commands to functions in the astro.c file which returns a json string to the web worker. The return json is then processed by javascript.
 
 The astro.js file is one of the files that is created by the compiler.
 
