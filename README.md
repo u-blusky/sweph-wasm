@@ -112,9 +112,6 @@ To enable data preloading, uncomment the line:
 present in the index.html file
 
 
-## To do
-Return a string in json format from the astro.c file.
- 
 ## The Application Web
 
 ![The Application Web](/assets/img/sweph-wasm.png)
